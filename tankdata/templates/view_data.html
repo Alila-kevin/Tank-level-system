@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tank Levels</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@latest"></script>
+</head>
+<body>
+    <canvas id="tankChart"  height="120" ></canvas>
+    <script>
+        const ctx = document.getElementById('tankChart').getContext('2d');
+
+        const chartData = {{ data|safe }};
+        const datasets = [];
+
+        const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+        let colorIndex = 0;
+        for (const [tank, levels] of Object.entries(chartData)) {
+            datasets.push({
+                label: tank,
+                data: levels.map(level => ({
+                    x: new Date(level.hour),  // Convert string to Date object
+                    y: level.level
+                })),
+                backgroundColor: colors[colorIndex % colors.length],
+                borderColor: colors[colorIndex % colors.length],
+                fill: false,
+                tension: 0.1
+            });
+            colorIndex++;
+        }
+
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
