@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank Level Representation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .tank-container {
+            position: relative;
+            width: 200px;
+            height: 400px;
+            margin: 10px;
+            border: 5px solid #333;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.1));
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .water-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ADD8E6;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            transition: height 1s ease-out;
+            background: linear-gradient(to top, rgba(173, 216, 230, 0.7), rgba(173, 216, 230, 1));
+            animation: waterWaves 3s linear infinite;
+        }
+        .tank-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Simulate small water waves with more visible motion */
+        @keyframes waterWaves {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px); /* Make the wave move up */
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    {% for tank_name, tank_level in tank_levels.items %}
+        <div class="tank-container">
+            <div id="waterLevel{{ forloop.counter }}" class="water-level" style="height: 0%"></div>
+            <div class="tank-info" id="levelText{{ forloop.counter }}">{{ tank_level }}%</div>
+        </div>
+    {% endfor %}
+
+    <script>
+        // Function to update the water level
+        function updateTankLevel(tankName, level) {
+            const maxCapacity = 6; // Total capacity of the tank
+            const levelPercentage = (level / maxCapacity) * 100;
+
+            const waterLevel = document.getElementById(`waterLevel${tankName}`);
+            const levelText = document.getElementById(`levelText${tankName}`);
+            
+            // Set the height of the water level div and the percentage text
+            waterLevel.style.height = `${levelPercentage}%`;
+            levelText.textContent = `${Math.round(levelPercentage)}%`;
+        }
+
+        // Update each tank's water level dynamically
+        {% for tank_name, tank_level in tank_levels.items %}
+            updateTankLevel("{{ forloop.counter }}", {{ tank_level }});
+        {% endfor %}
+    </script>
+
+</body>
+</html>

@@ -1,17 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank Level Representation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        /* Container for each tank */
+        .tank-container {
+            position: relative;
+            width: 250px;
+            height: 500px;
+            margin: 20px;
+            border: 3px solid #333;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Inlet and Outlet design */
+        .inlet, .outlet {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background-color: #4682b4;
+            border-radius: 5px;
+            top: 5px;
+        }
+
+        .inlet {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .outlet {
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff4500; /* Orange color for outlet */
+        }
+
+        /* Water level inside the tank */
+        .water-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ADD8E6;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            transition: height 1s ease;
+            animation: waveAnimation 3s infinite;
+        }
+
+        /* Wave animation effect */
+        @keyframes waveAnimation {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Display tank level info */
+        .tank-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #333;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Tank Name */
+        .tank-name {
+            font-size: 18px;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="mt-5">Welcome to Level Tank Monitoring</h1>
-    <p>This is the home page. Use the links below to navigate:</p>
-    <ul>
-        <li><a href="{% url 'upload_excel' %}">Upload Excel</a></li>
-        <li><a href="{% url 'view_data' %}">View Data</a></li>
-    </ul>
-</div>
+
+    {% for tank_name, tank_level in tank_data.items %}
+    <div class="tank-container">
+        <div class="tank-name">{{ tank_name }}</div>
+        <div class="water-level" id="waterLevel_{{ tank_name }}" style="height: 0%"></div>
+        <div class="inlet"></div>
+        <div class="outlet"></div>
+        <div class="tank-info" id="levelText_{{ tank_name }}">0%</div>
+    </div>
+    {% endfor %}
+
+    <script>
+        // Function to update water level and simulate waves
+        function updateTankLevel(tankName, level) {
+            const maxCapacity = 6; // Total capacity of the tank
+            const levelPercentage = (level / maxCapacity) * 100;
+
+            const waterLevel = document.getElementById('waterLevel_' + tankName);
+            const levelText = document.getElementById('levelText_' + tankName);
+            
+            // Set the height of the water level and the percentage text
+            waterLevel.style.height = `${levelPercentage}%`;
+            levelText.textContent = `${Math.round(levelPercentage)}%`;
+        }
+
+        // Update each tank's level based on data passed from Django
+        {% for tank_name, tank_level in tank_data.items %}
+        updateTankLevel("{{ tank_name }}", {{ tank_level }});
+        {% endfor %}
+    </script>
+
 </body>
 </html>

@@ -73,3 +73,16 @@ def view_data(request):
             record['hour'] = record['hour'].isoformat()  # Convert to ISO format
 
     return render(request, 'view_data.html', {'data': chart_data})
+def tank_levels(request):
+    # Fetch the latest level for each of the 8 tanks
+    tank_names = ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6', 'tank7', 'tank8']
+    tank_levels = {}
+
+    for tank_name in tank_names:
+        latest_level = TankLevel.objects.filter(tank=tank_name).order_by('-time').first()
+        if latest_level:
+            tank_levels[tank_name] = latest_level.level  # Get the most recent tank level
+        else:
+            tank_levels[tank_name] = 1  # Default value if no data is found
+
+    return render(request, 'tank.html', {'tank_levels': tank_levels})
